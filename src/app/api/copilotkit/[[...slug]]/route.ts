@@ -8,7 +8,7 @@ import { KANA_SYSTEM_PROMPT } from "@/lib/agent/system-prompt";
 import { kanaTools } from "@/lib/agent/tools";
 
 const serviceAdapter = new AnthropicAdapter({
-  model: process.env.ANTHROPIC_MODEL ?? "claude-3-5-sonnet-latest",
+  model: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-20250514",
 });
 
 const runtime = new CopilotRuntime({

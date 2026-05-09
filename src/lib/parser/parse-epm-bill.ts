@@ -137,7 +137,7 @@ async function extractWithClaude(rawText: string, sourceFile?: string): Promise<
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   const response = await client.messages.create({
-    model: process.env.ANTHROPIC_MODEL ?? "claude-3-5-sonnet-latest",
+    model: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-20250514",
     max_tokens: 1200,
     temperature: 0,
     tools: [

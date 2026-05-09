@@ -17,6 +17,19 @@ export function BenchmarkCard({
   matching_personas,
   comparisons,
 }: BenchmarkProps) {
+  const withinCount = comparisons.filter((comparison) => comparison.status === "within").length;
+  const belowCount = comparisons.filter((comparison) => comparison.status === "below").length;
+  const aboveCount = comparisons.filter((comparison) => comparison.status === "above").length;
+  const highlightedServices = comparisons
+    .filter((comparison) => comparison.status !== "within")
+    .map((comparison) => SERVICE_META[comparison.service].label.toLowerCase());
+  const summary =
+    aboveCount > 0
+      ? `This household is running heavier than its persona band on ${highlightedServices.join(", ")}.`
+      : belowCount > 0
+        ? `This household is tracking leaner than similar homes on ${highlightedServices.join(", ")}.`
+        : "This household is sitting right inside the expected range across the tracked services.";
+
   return (
     <section className="w-full overflow-hidden rounded-[28px] border border-stone-200 bg-[linear-gradient(160deg,#ffffff_0%,#f8fafc_52%,#fefce8_100%)] p-5 text-stone-900 shadow-[0_18px_45px_rgba(51,65,85,0.08)] sm:p-6">
       <div className="flex flex-col gap-5">
@@ -34,6 +47,21 @@ export function BenchmarkCard({
           </div>
           <div className="rounded-full border border-stone-200 bg-white/80 px-3 py-1 text-xs font-medium text-stone-600">
             Estrato {bill.stratum}
+          </div>
+        </div>
+
+        <div className="grid gap-3 rounded-[24px] border border-stone-200 bg-white/80 p-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+          <p className="text-sm leading-6 text-stone-600">{summary}</p>
+          <div className="flex flex-wrap gap-2 text-xs font-medium">
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700">
+              {withinCount} within range
+            </span>
+            <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-amber-700">
+              {belowCount} below range
+            </span>
+            <span className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-rose-700">
+              {aboveCount} above range
+            </span>
           </div>
         </div>
 

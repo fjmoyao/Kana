@@ -30,7 +30,7 @@ Three layers:
 
 2. **Agent Layer** — CopilotKit runtime at `/api/copilotkit`. Receives parsed bill + user query via `useCopilotReadable`, selects which UI components to render. Uses `useCopilotAction`/`useFrontendTool` for generative UI.
 
-3. **UI Layer** — React components registered via CopilotKit hooks, rendered inline in `CopilotSidebar`. Component types: bill summary, trend cards, persona benchmark cards, savings action plan, spike alerts.
+3. **UI Layer** — React components and generated surfaces are registered via CopilotKit frontend tools. The `CopilotSidebar` is the chat/control surface; tool handlers update the shared main-page workspace (`GeneratedViewPanel`) instead of rendering duplicate cards inside chat. Component types: bill summary, trend cards, persona benchmark cards, savings action plan, spike alerts, and open-ended generated surfaces.
 
 ## Key Packages
 

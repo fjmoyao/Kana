@@ -1,9 +1,7 @@
 "use client";
 
 import { useFrontendTool } from "@copilotkit/react-core/v2";
-import { createElement } from "react";
 import { useGeneratedViewStore } from "@/lib/store/generated-view-store";
-import { BillSummaryCard } from "./bill-summary-card";
 import { billSummarySchema } from "./view-schemas";
 
 export function useBillSummary() {
@@ -25,14 +23,6 @@ export function useBillSummary() {
         props,
       });
       return "Rendered the bill summary in the main Kana workspace.";
-    },
-    render: ({ args, status }) => {
-      if (status === "inProgress") return "Preparando resumen...";
-
-      const result = billSummarySchema.safeParse(args);
-      return result.success
-        ? createElement(BillSummaryCard, result.data)
-        : null;
     },
   });
 }

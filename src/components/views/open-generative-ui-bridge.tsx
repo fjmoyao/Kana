@@ -7,7 +7,6 @@ import {
   openGenerativeUIContentSchema,
   type OpenGenerativeUIContent,
 } from "@/lib/open-generative-ui";
-import { OpenGenerativeSurface } from "./open-generative-surface";
 
 const OPEN_GENERATIVE_UI_ACTIVITY_TYPE = "open-generative-ui";
 
@@ -31,12 +30,5 @@ function OpenGenerativeUIBridge({
     setOpenGeneratedView(content);
   }, [content, setOpenGeneratedView]);
 
-  return (
-    <div className="my-3">
-      <OpenGenerativeSurface content={content} compact />
-      <p className="mt-2 text-xs text-zinc-400">
-        Mirrored in the shared Kana workspace.
-      </p>
-    </div>
-  );
+  return null;
 }

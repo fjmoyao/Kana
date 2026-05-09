@@ -1,9 +1,7 @@
 "use client";
 
 import { useFrontendTool } from "@copilotkit/react-core/v2";
-import { createElement } from "react";
 import { useGeneratedViewStore } from "@/lib/store/generated-view-store";
-import { SavingsPlanCard } from "./savings-plan-card";
 import { savingsPlanSchema } from "./view-schemas";
 
 export function useSavingsPlan() {
@@ -25,14 +23,6 @@ export function useSavingsPlan() {
         props,
       });
       return "Rendered the savings plan in the main Kana workspace.";
-    },
-    render: ({ args, status }) => {
-      if (status === "inProgress") return "Generando plan de ahorro...";
-
-      const result = savingsPlanSchema.safeParse(args);
-      return result.success
-        ? createElement(SavingsPlanCard, result.data)
-        : null;
     },
   });
 }

@@ -1,9 +1,7 @@
 "use client";
 
 import { useFrontendTool } from "@copilotkit/react-core/v2";
-import { createElement } from "react";
 import { useGeneratedViewStore } from "@/lib/store/generated-view-store";
-import { BenchmarkCard } from "./benchmark-card";
 import { benchmarkSchema } from "./view-schemas";
 
 export function useBenchmark() {
@@ -25,14 +23,6 @@ export function useBenchmark() {
         props,
       });
       return "Rendered the benchmark card in the main Kana workspace.";
-    },
-    render: ({ args, status }) => {
-      if (status === "inProgress") return "Comparando con hogares similares...";
-
-      const result = benchmarkSchema.safeParse(args);
-      return result.success
-        ? createElement(BenchmarkCard, result.data)
-        : null;
     },
   });
 }

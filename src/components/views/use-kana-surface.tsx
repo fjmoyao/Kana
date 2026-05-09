@@ -4,7 +4,6 @@ import { useFrontendTool } from "@copilotkit/react-core/v2";
 import { z } from "zod";
 import { useGeneratedViewStore } from "@/lib/store/generated-view-store";
 import type { OpenGenerativeUIContent } from "@/lib/open-generative-ui";
-import { OpenGenerativeSurface } from "./open-generative-surface";
 
 const kanaSurfaceSchema = z.object({
   title: z
@@ -34,25 +33,12 @@ export function useKanaSurface() {
   useFrontendTool({
     name: "render_kana_surface",
     description:
-      "Render an open-ended, AI-generated Kana UI surface in both chat and the shared workspace. Use this for bill analysis, comparisons, savings plans, change analysis, custom dashboards, and any visual answer that should not be a fixed template.",
+      "Render an open-ended, AI-generated Kana UI surface in the main shared workspace. Use this for bill analysis, comparisons, savings plans, change analysis, custom dashboards, and any visual answer that should not be a fixed template.",
     parameters: kanaSurfaceSchema,
     followUp: false,
     handler: async (args: KanaSurfaceArgs) => {
       useGeneratedViewStore.getState().setOpenGeneratedView(toContent(args));
       return "Rendered generated Kana surface in the shared workspace.";
-    },
-    render: ({ args }) => {
-      const parsed = kanaSurfaceSchema.safeParse(args);
-      if (!parsed.success) return null;
-
-      return (
-        <div className="my-3">
-          <OpenGenerativeSurface content={toContent(parsed.data)} compact />
-          <p className="mt-2 text-xs text-zinc-400">
-            Mirrored in the shared Kana workspace.
-          </p>
-        </div>
-      );
     },
   });
 }

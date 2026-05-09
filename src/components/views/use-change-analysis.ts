@@ -1,9 +1,7 @@
 "use client";
 
 import { useFrontendTool } from "@copilotkit/react-core/v2";
-import { createElement } from "react";
 import { useGeneratedViewStore } from "@/lib/store/generated-view-store";
-import { ChangeAnalysisCard } from "./change-analysis-card";
 import { changeAnalysisSchema } from "./view-schemas";
 
 export function useChangeAnalysis() {
@@ -25,14 +23,6 @@ export function useChangeAnalysis() {
         props,
       });
       return "Rendered the change analysis in the main Kana workspace.";
-    },
-    render: ({ args, status }) => {
-      if (status === "inProgress") return "Analizando cambios...";
-
-      const result = changeAnalysisSchema.safeParse(args);
-      return result.success
-        ? createElement(ChangeAnalysisCard, result.data)
-        : null;
     },
   });
 }

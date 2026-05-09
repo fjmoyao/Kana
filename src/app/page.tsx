@@ -1,7 +1,9 @@
 "use client";
 
 import { CopilotKit } from "@copilotkit/react-core";
+import type { ReactToolCallRenderer } from "@copilotkit/react-core/v2";
 import { CopilotSidebar } from "@copilotkit/react-ui";
+import { z } from "zod";
 import { UploadZone } from "@/components/upload-zone";
 import { BillSelector } from "@/components/bill-selector";
 import { BillAgentContext } from "@/components/bill-agent-context";
@@ -18,6 +20,14 @@ const kanaRenderActivityMessages = [kanaOpenGenerativeUIActivityRenderer];
 const kanaOpenGenerativeUI = {
   designSkill: KANA_OPEN_GENERATIVE_UI_DESIGN_SKILL,
 };
+// Keep CopilotKit's sandboxed UI tool active, but suppress its chat-side iframe.
+const kanaRenderToolCalls: ReactToolCallRenderer<unknown>[] = [
+  {
+    name: "generateSandboxedUi",
+    args: z.any(),
+    render: () => null,
+  },
+];
 
 function EmptyState({ onLoadSample }: { onLoadSample: () => void }) {
   return (
@@ -105,6 +115,7 @@ export default function Home() {
       runtimeUrl="/api/copilotkit"
       openGenerativeUI={kanaOpenGenerativeUI}
       renderActivityMessages={kanaRenderActivityMessages}
+      renderToolCalls={kanaRenderToolCalls}
     >
       <KanaApp />
     </CopilotKit>

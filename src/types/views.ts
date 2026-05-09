@@ -1,19 +1,22 @@
 import type { Bill } from "./bill";
 import type { Persona } from "./persona";
 
-export type ViewType = "summary" | "change_analysis" | "benchmark" | "savings_plan";
+export type ViewType =
+  | "summary"
+  | "change_analysis"
+  | "benchmark"
+  | "savings_plan";
+
+export type BillService =
+  | "electricity"
+  | "water"
+  | "sewer"
+  | "gas"
+  | "other";
 
 export interface BillSummaryProps {
   bill: Bill;
-  biggest_driver: "electricity" | "water" | "sewer" | "gas" | "other";
-}
-
-export interface ServiceDelta {
-  service: string;
-  previous_value: number;
-  current_value: number;
-  unit: string;
-  change_percent: number;
+  biggest_driver: BillService;
 }
 
 export interface ChangeAnalysisProps {
@@ -23,11 +26,12 @@ export interface ChangeAnalysisProps {
   explanation: string;
 }
 
-export interface ServiceComparison {
-  service: string;
-  user_value: number;
-  persona_range: [number, number];
-  status: "below" | "within" | "above";
+export interface ServiceDelta {
+  service: BillService | "total";
+  previous_value: number;
+  current_value: number;
+  unit: "kWh" | "m3" | "m³" | "COP";
+  change_percent: number;
 }
 
 export interface BenchmarkProps {
@@ -36,13 +40,20 @@ export interface BenchmarkProps {
   comparisons: ServiceComparison[];
 }
 
+export interface ServiceComparison {
+  service: Exclude<BillService, "other">;
+  user_value: number;
+  persona_range: [number, number];
+  status: "below" | "within" | "above";
+}
+
+export interface SavingsPlanProps {
+  recommendations: Recommendation[];
+}
+
 export interface Recommendation {
   action: string;
   estimated_savings_cop: number;
   difficulty: "easy" | "medium" | "effort";
   reasoning: string;
-}
-
-export interface SavingsPlanProps {
-  recommendations: Recommendation[];
 }

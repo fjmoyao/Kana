@@ -176,25 +176,25 @@ function parseLocally(rawText: string, sourceFile?: string): Partial<Bill> {
 
   const draft: Partial<Bill> = {
     source_file: sourceFile,
-    provider: parseProvider(text),
-    billing_period: parseBillingPeriod(text, sourceFile),
+    provider: parseProvider(text) ?? undefined,
+    billing_period: parseBillingPeriod(text, sourceFile) ?? undefined,
     currency: "COP",
-    city: parseCity(text),
-    stratum: parseStratum(text),
+    city: parseCity(text) ?? undefined,
+    stratum: parseStratum(text) ?? undefined,
     total_due: parseLabeledMoney(text, [
       "total a pagar",
       "valor total a pagar",
       "total factura",
       "total de la factura",
-    ]),
-    other_charges: parseOtherCharges(lines),
-    due_date: parseDueDate(text),
+    ]) ?? undefined,
+    other_charges: parseOtherCharges(lines) ?? undefined,
+    due_date: parseDueDate(text) ?? undefined,
   };
 
   for (const service of SERVICE_CONFIGS) {
     const serviceResult = parseService(lines, service);
-    draft[service.usageField] = serviceResult.usage;
-    draft[service.costField] = serviceResult.cost;
+    draft[service.usageField] = serviceResult.usage ?? undefined;
+    draft[service.costField] = serviceResult.cost ?? undefined;
   }
 
   return draft;

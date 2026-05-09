@@ -1,6 +1,6 @@
 "use client";
 
-import { useComponent } from "@copilotkit/react";
+import { useComponent } from "@copilotkit/react-core/v2/headless";
 import { BillSummaryCard } from "./bill-summary-card";
 import { billSummarySchema } from "./view-schemas";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useComponent } from "@copilotkit/react";
+import { useComponent } from "@copilotkit/react-core/v2/headless";
 import { BenchmarkCard } from "./benchmark-card";
 import { benchmarkSchema } from "./view-schemas";
 

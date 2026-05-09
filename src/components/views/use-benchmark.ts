@@ -1,15 +1,15 @@
 "use client";
 
-import { useCopilotAction } from "@copilotkit/react-core";
+import { useFrontendTool } from "@copilotkit/react-core";
 import { createElement } from "react";
 import type { BenchmarkProps } from "../../types/views";
 import { BenchmarkCard } from "./benchmark-card";
 
 export function useBenchmark() {
-  useCopilotAction({
-    name: "Benchmark",
+  useFrontendTool({
+    name: "show_benchmark",
     description:
-      "Compares the active bill against matching Medellin household personas and highlights below, within, or above-range services.",
+      "Renders a persona benchmark card comparing the user's bill against similar Medellín households. Shows per-service below/within/above status with visual gauges. Call this when the user asks how they compare.",
     parameters: [
       {
         name: "bill",
@@ -20,20 +20,19 @@ export function useBenchmark() {
       {
         name: "matching_personas",
         type: "object[]",
-        description: "The most relevant Medellin household personas.",
+        description: "The most relevant Medellín household personas. Each has: id, label, zone, stratum, home_type, household_size, work_pattern, usage_profile.",
         required: true,
       },
       {
         name: "comparisons",
         type: "object[]",
-        description: "Per-service comparison results.",
+        description: "Per-service comparison results. Each has: service ('electricity'|'water'|'sewer'|'gas'), user_value (number), persona_range ([min, max]), status ('below'|'within'|'above').",
         required: true,
       },
     ],
     render: ({ args, status }) =>
       status === "inProgress"
-        ? "Preparing benchmark..."
+        ? "Comparando con hogares similares..."
         : createElement(BenchmarkCard, args as unknown as BenchmarkProps),
-    handler: async (args) => args,
   });
 }

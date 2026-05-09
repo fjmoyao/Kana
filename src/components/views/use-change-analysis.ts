@@ -1,15 +1,15 @@
 "use client";
 
-import { useCopilotAction } from "@copilotkit/react-core";
+import { useFrontendTool } from "@copilotkit/react-core";
 import { createElement } from "react";
 import type { ChangeAnalysisProps } from "../../types/views";
 import { ChangeAnalysisCard } from "./change-analysis-card";
 
 export function useChangeAnalysis() {
-  useCopilotAction({
-    name: "ChangeAnalysis",
+  useFrontendTool({
+    name: "show_change_analysis",
     description:
-      "Shows month-over-month service deltas, sparkline trends, spike alerts, and an agent explanation.",
+      "Renders a change analysis card with month-over-month deltas, sparkline trends, spike alerts, and an explanation. Call this when the user asks what changed or about trends.",
     parameters: [
       {
         name: "bills",
@@ -20,7 +20,7 @@ export function useChangeAnalysis() {
       {
         name: "deltas",
         type: "object[]",
-        description: "Per-service changes between the previous and active bill.",
+        description: "Per-service changes between the previous and active bill. Each delta has: service (string), previous_value (number), current_value (number), unit ('kWh'|'m3'|'COP'), change_percent (number).",
         required: true,
       },
       {
@@ -38,11 +38,10 @@ export function useChangeAnalysis() {
     ],
     render: ({ args, status }) =>
       status === "inProgress"
-        ? "Preparing change analysis..."
+        ? "Analizando cambios..."
         : createElement(
             ChangeAnalysisCard,
             args as unknown as ChangeAnalysisProps,
           ),
-    handler: async (args) => args,
   });
 }

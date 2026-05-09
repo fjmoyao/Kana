@@ -2,7 +2,6 @@
 
 import { CopilotKit } from "@copilotkit/react-core";
 import { CopilotSidebar } from "@copilotkit/react-ui";
-import { useCopilotChatSuggestions } from "@copilotkit/react-core";
 import { UploadZone } from "@/components/upload-zone";
 import { BillSelector } from "@/components/bill-selector";
 import { BillAgentContext } from "@/components/bill-agent-context";
@@ -10,19 +9,7 @@ import { ActiveBillSummary } from "@/components/active-bill-summary";
 import { RegisterViews } from "@/components/views/register-views";
 import { useBillStore } from "@/lib/store/bill-store";
 import { sampleBills } from "@/lib/sample-data";
-
-function SuggestedPrompts() {
-  const bills = useBillStore((s) => s.bills);
-
-  useCopilotChatSuggestions({
-    instructions: bills.length > 0
-      ? "Suggest questions about the user's uploaded EPM utility bills."
-      : "Suggest that the user upload an EPM bill or try sample data.",
-    maxSuggestions: 4,
-  });
-
-  return null;
-}
+import "@copilotkit/react-ui/styles.css";
 
 function EmptyState({ onLoadSample }: { onLoadSample: () => void }) {
   return (
@@ -53,7 +40,6 @@ function KanaApp() {
     <>
       <BillAgentContext />
       <RegisterViews />
-      <SuggestedPrompts />
 
       <div className="flex flex-1 items-center justify-center px-4 py-8">
         <main className="flex w-full max-w-lg flex-col items-center gap-5">

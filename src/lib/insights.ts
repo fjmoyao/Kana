@@ -1,11 +1,11 @@
-import { sampleBills, personas as samplePersonas } from "@/lib/sample-data";
-import type { Bill } from "@/types/bill";
-import type { Persona } from "@/types/persona";
+import { sampleBills, personas as samplePersonas } from "./sample-data.ts";
+import type { Bill } from "../types/bill.ts";
+import type { Persona } from "../types/persona.ts";
 import type {
   BillService,
   Recommendation,
   ServiceComparison,
-} from "@/types/views";
+} from "../types/views.ts";
 
 type MatchPersonaInput = {
   stratum: number;

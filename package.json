@@ -10,7 +10,7 @@
     "test": "node --experimental-strip-types --experimental-specifier-resolution=node --test \"src/**/*.test.ts\""
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.60.0",
+    "@anthropic-ai/sdk": "^0.57.0",
     "@base-ui/react": "^1.4.1",
     "@copilotkit/a2ui-renderer": "^1.57.1",
     "@copilotkit/react-core": "^1.57.1",

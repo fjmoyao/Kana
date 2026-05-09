@@ -2,17 +2,17 @@
 
 ## Direction
 
-Build Kana as a Medellin-first, PDF-first product.
+Build Kana as a PDF-first utility copilot with a globally understandable story.
 
-That keeps the demo grounded in real EPM bill structure while still making the experience feel broad through synthetic local personas and runtime-generated UI.
+The current demo is grounded in real EPM bill structure from Medellin, while the broader product framing stays universal: uploaded bills become runtime-generated interfaces.
 
 ## Product Paragraph
 
-Kana turns utility bills buried in PDFs into a live household copilot for Medellin. Instead of forcing people through a static dashboard, an agent reads each uploaded EPM bill, understands electricity, water, sewer, gas, and city charges, and generates the exact interface needed at runtime: bill breakdowns, trend views, spike alerts, and personalized savings actions. It also compares your home against similar Medellin households using synthetic local personas, so you can quickly see whether your usage looks normal for your estrato, home type, and household size.
+Kana turns utility bills buried in PDFs into a live household copilot. Instead of forcing people through a static dashboard, an agent reads each uploaded bill, understands electricity, water, sewer, gas, and other charges, and generates the exact interface needed at runtime: bill breakdowns, trend views, spike alerts, and personalized savings actions. For the current MVP, the experience is demonstrated on real EPM bills from Medellin and uses synthetic local personas to make household comparisons credible from day one.
 
 ## One-Sentence Pitch
 
-Kana is an agentic utility copilot that reads uploaded EPM bills and generates a live interface for understanding costs, spotting spikes, and comparing your home to similar Medellin households.
+Kana is an agentic utility copilot that reads uploaded bills and generates a live interface for understanding costs, spotting spikes, and comparing your home to similar households.
 
 ## App Flow
 
@@ -41,7 +41,7 @@ Kana is an agentic utility copilot that reads uploaded EPM bills and generates a
 1. Upload a real EPM bill PDF.
 2. Show the generated bill summary.
 3. Ask what changed this month.
-4. Ask to compare against similar households in Medellin.
+4. Ask to compare against similar households.
 5. Ask what can be done to lower next month's bill.
 
 ### Close
@@ -50,7 +50,7 @@ Kana is an agentic utility copilot that reads uploaded EPM bills and generates a
 
 ## Persona Strategy
 
-Use 20 synthetic Medellin household personas, varying:
+Use 20 synthetic household personas for the MVP, grounded in Medellin usage patterns and varying by:
 
 - estrato
 - apartment vs house

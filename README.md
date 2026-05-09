@@ -1,8 +1,8 @@
 # Kana
 
-Kana is a PDF-first utility copilot that turns an uploaded bill into a live, agent-generated interface.
+Kana is a PDF-first utility copilot that turns an uploaded household bill into a live, agent-generated interface.
 
-For the hackathon MVP, Kana focuses on EPM bills from Medellin and uses electricity as the lead story while still understanding water, sewer, and gas. Instead of a fixed dashboard, the agent reads the bill, understands the user's question, and renders the right UI at runtime.
+For the hackathon MVP, Kana is demonstrated on real EPM bills from Medellin and uses electricity as the lead story while still understanding water, sewer, and gas. Instead of a fixed dashboard, the agent reads the bill, understands the user's question, and renders the right UI at runtime.
 
 ## MVP
 
@@ -11,7 +11,7 @@ The MVP should do five things well:
 - accept one or more uploaded EPM PDF bills
 - extract structured data for electricity, water, sewer, gas, and other charges
 - generate different UI views at runtime instead of showing a fixed dashboard
-- compare the user's bill against recent history and similar Medellin households
+- compare the user's bill against recent history and similar households
 - produce practical savings guidance grounded in the uploaded bills
 
 ## Core demo views
@@ -23,7 +23,7 @@ Kana should support these four generative UI moments:
 2. `What Changed`
    Month-over-month changes in electricity, water, gas, and total bill.
 3. `You vs Similar Households`
-   Benchmark against synthetic Medellin households with similar profiles.
+   Benchmark against synthetic households with similar profiles.
 4. `Savings Plan`
    The most actionable next steps for lowering the next bill.
 
@@ -58,6 +58,8 @@ To keep the scope honest and shippable, the MVP does not depend on:
 
 Kana is `PDF-first` today and `meter-ready` later.
 
+The current demo is grounded in EPM bills from Medellin, but the product story is broader: a universal bill-to-interface workflow that can expand across providers and countries.
+
 ## Roadmap
 
 ### Phase 1: Hackathon MVP
@@ -65,7 +67,7 @@ Kana is `PDF-first` today and `meter-ready` later.
 - upload EPM PDFs
 - parse bill data into a normalized schema
 - support the four core generative views
-- use local sample bills plus synthetic Medellin personas
+- use local sample bills plus synthetic household personas
 
 ### Phase 2: Better utility intelligence
 

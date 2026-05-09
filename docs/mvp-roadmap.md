@@ -4,7 +4,7 @@
 
 Kana starts with the most universal utility data source in the world: the bill.
 
-For the hackathon, that means a user can upload an EPM PDF and immediately get a runtime-generated interface that explains what they paid, what changed, how they compare, and what they should do next.
+For the hackathon, that means a user can upload a utility PDF and immediately get a runtime-generated interface that explains what they paid, what changed, how they compare, and what they should do next. The current working demo is grounded in EPM bills from Medellin.
 
 ## Scope decisions
 
@@ -14,8 +14,8 @@ These are the product decisions the repo should reflect:
   The MVP starts with uploaded bills, not Gmail or smart meters.
 - `Electricity-led, multi-utility`
   Electricity is the main story, but water, sewer, and gas are part of the same household experience.
-- `Medellin-first`
-  The first parser and benchmark logic should be grounded in EPM bills and local personas.
+- `MVP grounded in EPM Medellin bills`
+  The first parser and benchmark logic should be grounded in real EPM bills and local personas, even if the outward product framing remains broader.
 - `Generative UI first`
   The agent should choose the interface based on the bill and the user's question.
 

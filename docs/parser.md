@@ -4,8 +4,10 @@ Issue #6 starts the data layer for Kana's PDF-first MVP.
 
 The parser is split into two responsibilities:
 
-- `src/parser/pdfTextExtractor.js` extracts text from `.pdf` or `.txt` inputs.
-- `src/parser/epmBillParser.js` maps extracted EPM bill text into Kana's normalized bill state.
+- `src/lib/parser/extract-text.ts` extracts text from a PDF `Buffer` with `pdf-parse`.
+- `src/lib/parser/parse-epm-bill.ts` maps extracted EPM bill text into Kana's normalized `Bill` object.
+- `src/app/api/parse/route.ts` parses a previously uploaded file by `{ fileId }`.
+- `src/app/api/upload/route.ts` stores the uploaded PDF and returns the parsed `Bill` in the upload response.
 
 ## Normalized Output
 
@@ -15,6 +17,8 @@ The parser is split into two responsibilities:
   "provider": "EPM",
   "billing_period": "abril de 2026",
   "currency": "COP",
+  "city": "Medellín",
+  "stratum": 5,
   "total_due": 354520.24,
   "electricity_kwh": 142,
   "electricity_cost": 136531.3,
@@ -33,13 +37,14 @@ The parser is split into two responsibilities:
 ## Local Usage
 
 ```bash
-npm run parse:epm -- ./bill.txt
+npm test
 ```
 
-For PDFs, the extractor tries `pdftotext` first and `mutool` second. If neither is available, pass a `.txt` file with extracted bill text or install one of those tools locally.
+Production PDF extraction uses `pdf-parse`. Structured bill extraction uses Claude via `@anthropic-ai/sdk` when `ANTHROPIC_API_KEY` is available, with a deterministic local parser fallback used for tests and clean sample verification.
 
 ## Notes
 
 - Currency parsing accepts Colombian formats such as `$ 354.520,24`.
 - Usage parsing supports `kWh`, `m3`, and `m³`.
 - If the bill text omits the total but all service costs are present, the parser estimates `total_due` from service totals plus other charges.
+- Confidence starts at `1.0` and degrades by `0.1` for each missing required field.

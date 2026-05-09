@@ -4,8 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "parse:epm": "node src/parser/cli.js",
-    "test": "node --test"
+    "test": "node --experimental-strip-types --experimental-specifier-resolution=node --test \"src/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.60.0",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0"
   },
   "engines": {
     "node": ">=20"

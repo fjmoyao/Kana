@@ -2,13 +2,13 @@
 
 ## Direction
 
-Build Kana as a Medellin-first product.
+Build Kana as a Medellin-first, PDF-first product.
 
-That keeps the demo grounded in real EPM bill structure while still making the experience feel broad through synthetic local personas.
+That keeps the demo grounded in real EPM bill structure while still making the experience feel broad through synthetic local personas and runtime-generated UI.
 
 ## Product Paragraph
 
-Kana turns utility bills buried in PDFs into a live household copilot for Medellin. Instead of forcing people through a static dashboard, an agent reads each uploaded EPM bill, understands water, sewer, energy, gas, and city charges, and generates the exact interface needed at runtime: bill breakdowns, trend views, spike alerts, and personalized savings actions. It also compares your home against similar Medellin households using synthetic local personas, so you can quickly see whether your usage looks normal for your estrato, home type, and household size.
+Kana turns utility bills buried in PDFs into a live household copilot for Medellin. Instead of forcing people through a static dashboard, an agent reads each uploaded EPM bill, understands electricity, water, sewer, gas, and city charges, and generates the exact interface needed at runtime: bill breakdowns, trend views, spike alerts, and personalized savings actions. It also compares your home against similar Medellin households using synthetic local personas, so you can quickly see whether your usage looks normal for your estrato, home type, and household size.
 
 ## One-Sentence Pitch
 
@@ -16,12 +16,19 @@ Kana is an agentic utility copilot that reads uploaded EPM bills and generates a
 
 ## App Flow
 
-1. User uploads an EPM PDF bill.
+1. User uploads one or more EPM PDF bills.
 2. The agent extracts bill metadata and line items into structured fields.
 3. The first generated UI shows total due, service totals, and key changes.
 4. The user asks what changed and gets trend cards and explanations.
 5. The user asks how they compare and gets persona-based benchmark cards.
 6. The user asks how to save and gets a generated action plan.
+
+## Recommended Stack
+
+- `CopilotKit` for the app shell and copilot experience
+- `AG-UI` for frontend-agent transport
+- `A2UI` for runtime-rendered interfaces
+- `MCP` only if it helps expose bill parsing or comparison tools cleanly
 
 ## Demo Script
 
@@ -64,3 +71,14 @@ Based on the current sanitized sample dataset:
 - Total bill estimate: roughly `354k-464k COP`
 
 That is enough to support trend detection, comparison, and practical recommendations.
+
+## MVP Boundaries
+
+The hackathon MVP should not depend on:
+
+- Gmail integration
+- smart meter access
+- real-time monitoring
+- multi-country parsing
+
+Those are roadmap items, not demo requirements.

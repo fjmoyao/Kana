@@ -1,7 +1,7 @@
-import type { Bill } from "@/types/bill";
-import type { Persona } from "@/types/persona";
-import rawBills from "../../data/sample/epm-bills-summary.json";
-import rawPersonas from "../../data/sample/medellin-personas.json";
+import type { Bill } from "../types/bill.ts";
+import type { Persona } from "../types/persona.ts";
+import rawBills from "../../data/sample/epm-bills-summary.json" with { type: "json" };
+import rawPersonas from "../../data/sample/medellin-personas.json" with { type: "json" };
 
 export const sampleBills: Bill[] = rawBills.map((b) => ({
   billing_period: b.billing_period,

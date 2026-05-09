@@ -1,7 +1,7 @@
 import { create } from "zustand";
-import type { Bill } from "@/types/bill";
-import type { Persona } from "@/types/persona";
-import { personas as samplePersonas } from "@/lib/sample-data";
+import type { Bill } from "../../types/bill.ts";
+import type { Persona } from "../../types/persona.ts";
+import { personas as samplePersonas } from "../sample-data.ts";
 
 interface BillStore {
   bills: Bill[];

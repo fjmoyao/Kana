@@ -1,8 +1,19 @@
-type PdfParseResult = {
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
+
+type PdfTextResult = {
   text?: string;
 };
 
-type PdfParse = (buffer: Buffer) => Promise<PdfParseResult>;
+type PdfParser = {
+  getText: () => Promise<PdfTextResult>;
+  destroy: () => Promise<void>;
+};
+
+type PdfParseConstructor = {
+  new (options: { data: Buffer }): PdfParser;
+  setWorker: (workerSrc?: string) => string;
+};
 
 export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
   if (!Buffer.isBuffer(buffer)) {
@@ -13,8 +24,17 @@ export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
     throw new Error("Cannot extract text from an empty PDF buffer.");
   }
 
-  const pdfParse = await loadPdfParse();
-  const result = await pdfParse(buffer);
+  const PDFParse = await loadPdfParse();
+  configurePdfWorker(PDFParse);
+  const parser = new PDFParse({ data: buffer });
+
+  let result: PdfTextResult;
+  try {
+    result = await parser.getText();
+  } finally {
+    await parser.destroy();
+  }
+
   const text = normalizeExtractedText(result.text ?? "");
 
   if (!text) {
@@ -34,13 +54,22 @@ function normalizeExtractedText(text: string): string {
     .trim();
 }
 
-async function loadPdfParse(): Promise<PdfParse> {
+async function loadPdfParse(): Promise<PdfParseConstructor> {
   try {
     const pdfParseModule = await import("pdf-parse");
-    return (pdfParseModule.default ?? pdfParseModule) as PdfParse;
+    if ("PDFParse" in pdfParseModule && typeof pdfParseModule.PDFParse === "function") {
+      return pdfParseModule.PDFParse as PdfParseConstructor;
+    }
+
+    throw new TypeError("pdf-parse v2 did not expose a PDFParse constructor.");
   } catch (error) {
     throw new Error(
       `pdf-parse is required for PDF extraction. Run npm install before parsing PDFs. ${String(error)}`,
     );
   }
+}
+
+function configurePdfWorker(PDFParse: PdfParseConstructor): void {
+  const workerPath = join(process.cwd(), "node_modules/pdf-parse/dist/worker/pdf.worker.mjs");
+  PDFParse.setWorker(pathToFileURL(workerPath).toString());
 }

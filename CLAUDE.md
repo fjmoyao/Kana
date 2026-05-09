@@ -6,7 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Kana is an agentic utility copilot for Medellin households. Users upload EPM (Empresas Públicas de Medellín) utility bill PDFs; an agent parses the bill and generates a live UI at runtime — bill breakdowns, trend views, spike alerts, persona comparisons, and savings recommendations. The interface is generated from the uploaded bill and user queries, not served from static pages.
 
-**Status:** Greenfield hackathon project — no application code exists yet.
+**Status:** Scaffold complete (Next.js 15 + CopilotKit + shared types).
+
+## Commands
+
+```bash
+npm run dev          # Start dev server on localhost:3000
+npm run build        # Production build
+npm run lint         # ESLint
+```
 
 ## Core Concept
 
@@ -14,15 +22,24 @@ Kana is an agentic utility copilot for Medellin households. Users upload EPM (Em
 - **Agent-generated UI.** The agent reads the PDF, extracts structured data, and renders the right interface at query time.
 - **Medellin-specific context.** Comparisons use 20 synthetic local personas varying by estrato (1–6), home type, occupant count, and usage patterns.
 
-## Architecture (to build)
+## Architecture
 
 Three layers:
 
-1. **PDF Parser** — Extracts five EPM service categories (water, sewer, energy, gas, other charges) from uploaded bill PDFs. Output shape matches `data/sample/epm-bills-summary.json`.
+1. **PDF Parser** — Extracts five EPM service categories (water, sewer, energy, gas, other charges) from uploaded bill PDFs. Output shape matches `src/types/bill.ts`.
 
-2. **Agent Layer** — Receives parsed bill + user query, selects which UI components to render, and returns structured component specs. The agent decides the view; it does not serve static pages.
+2. **Agent Layer** — CopilotKit runtime at `/api/copilotkit`. Receives parsed bill + user query via `useCopilotReadable`, selects which UI components to render. Uses `useCopilotAction`/`useFrontendTool` for generative UI.
 
-3. **UI Layer** — Renders components at query time from agent output. Component types: bill summary, trend cards, persona benchmark cards, savings action plan, spike alerts.
+3. **UI Layer** — React components registered via CopilotKit hooks, rendered inline in `CopilotSidebar`. Component types: bill summary, trend cards, persona benchmark cards, savings action plan, spike alerts.
+
+## Key Packages
+
+- `@copilotkit/react-core` + `@copilotkit/react-ui` — frontend (provider is `CopilotKit`, not `CopilotKitProvider`)
+- `@copilotkit/runtime` — backend (`copilotRuntimeNextJSAppRouterEndpoint`)
+- `zustand` — client state (bill store)
+- `zod` — schema validation
+- `pdf-parse` — PDF text extraction
+- `@anthropic-ai/sdk` — Claude API for structured bill parsing
 
 ## Sample Data
 

@@ -1,0 +1,13 @@
+Empresas Publicas de Medellin E.S.P.
+Factura de servicios publicos domiciliarios
+Periodo de consumo: abril de 2026
+Fecha limite de pago: 18 de mayo de 2026
+
+Detalle de cobros
+Acueducto consumo 6 m3 valor $ 58.561,35
+Alcantarillado consumo 6 m3 valor $ 43.474,61
+Energia electrica consumo 142 kWh valor $ 136.531,30
+Gas consumo 5,9 m3 valor $ 27.787,70
+Otras entidades valor $ 88.165,28
+
+Total a pagar $ 354.520,24

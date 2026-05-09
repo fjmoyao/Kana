@@ -1,15 +1,15 @@
 "use client";
 
-import { useCopilotAction } from "@copilotkit/react-core";
+import { useFrontendTool } from "@copilotkit/react-core";
 import { createElement } from "react";
 import type { BillSummaryProps } from "../../types/views";
 import { BillSummaryCard } from "./bill-summary-card";
 
 export function useBillSummary() {
-  useCopilotAction({
-    name: "BillSummary",
+  useFrontendTool({
+    name: "show_bill_summary",
     description:
-      "Displays a bill summary with total due, service breakdown, due-date urgency, and the biggest cost driver.",
+      "Renders a bill summary card showing total due, service breakdown, and biggest cost driver. Call this when the user asks for a summary or first uploads a bill.",
     parameters: [
       {
         name: "bill",
@@ -27,8 +27,7 @@ export function useBillSummary() {
     ],
     render: ({ args, status }) =>
       status === "inProgress"
-        ? "Preparing bill summary..."
+        ? "Preparando resumen..."
         : createElement(BillSummaryCard, args as unknown as BillSummaryProps),
-    handler: async (args) => args,
   });
 }

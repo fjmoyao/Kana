@@ -19,6 +19,9 @@ const runtime = new CopilotRuntime({
       prompt: KANA_SYSTEM_PROMPT,
       tools: kanaTools,
       maxSteps: 3,
+      maxOutputTokens: 220,
+      maxRetries: 0,
+      temperature: 0.2,
     }),
   },
 });

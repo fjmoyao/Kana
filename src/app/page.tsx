@@ -1,29 +1,12 @@
 "use client";
 
-import { CopilotKit } from "@copilotkit/react-core";
-import { CopilotSidebar } from "@copilotkit/react-ui";
-import { useCopilotChatSuggestions } from "@copilotkit/react-core";
 import { UploadZone } from "@/components/upload-zone";
 import { BillSelector } from "@/components/bill-selector";
-import { BillAgentContext } from "@/components/bill-agent-context";
 import { ActiveBillSummary } from "@/components/active-bill-summary";
+import { KanaChatSidebar } from "@/components/kana-chat-sidebar";
 import { GeneratedViewDeck } from "@/components/views/generated-view-deck";
-import { RegisterViews } from "@/components/views/register-views";
 import { useBillStore } from "@/lib/store/bill-store";
 import { sampleBills } from "@/lib/sample-data";
-
-function SuggestedPrompts() {
-  const bills = useBillStore((s) => s.bills);
-
-  useCopilotChatSuggestions({
-    instructions: bills.length > 0
-      ? "Suggest questions about the user's uploaded EPM utility bills."
-      : "Suggest that the user upload an EPM bill or try sample data.",
-    maxSuggestions: 4,
-  });
-
-  return null;
-}
 
 function EmptyState({ onLoadSample }: { onLoadSample: () => void }) {
   return (
@@ -52,10 +35,6 @@ function KanaApp() {
 
   return (
     <>
-      <BillAgentContext />
-      <RegisterViews />
-      <SuggestedPrompts />
-
       <div className="flex flex-1 items-center justify-center px-4 py-8">
         <main className="flex w-full max-w-lg flex-col items-center gap-5">
           {/* Hero */}
@@ -92,24 +71,11 @@ function KanaApp() {
           </p>
         </main>
       </div>
-
-      <CopilotSidebar
-        defaultOpen={false}
-        labels={{
-          title: "Kana",
-          initial: bills.length > 0
-            ? "I can see your bills! Ask me what changed, how you compare to similar households, or how to save."
-            : "Hi! Upload an EPM bill or try sample data to get started.",
-        }}
-      />
+      <KanaChatSidebar />
     </>
   );
 }
 
 export default function Home() {
-  return (
-    <CopilotKit runtimeUrl="/api/copilotkit">
-      <KanaApp />
-    </CopilotKit>
-  );
+  return <KanaApp />;
 }

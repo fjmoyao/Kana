@@ -3,12 +3,16 @@ import type { Bill } from "../../types/bill.ts";
 import type { Persona } from "../../types/persona.ts";
 import { personas as samplePersonas } from "../sample-data.ts";
 
+export type DemoView = "summary" | "changes" | "benchmark" | "savings";
+
 interface BillStore {
   bills: Bill[];
   activeBillIndex: number;
+  activeView: DemoView;
   personas: Persona[];
   addBill: (bill: Bill) => void;
   setActive: (index: number) => void;
+  setActiveView: (view: DemoView) => void;
   getActiveBill: () => Bill | null;
   removeBill: (index: number) => void;
   getBillHistory: () => Bill[];
@@ -42,6 +46,7 @@ function billSortKey(bill: Bill): number {
 export const useBillStore = create<BillStore>((set, get) => ({
   bills: [],
   activeBillIndex: 0,
+  activeView: "benchmark",
   personas: samplePersonas,
 
   addBill: (bill) =>
@@ -49,10 +54,16 @@ export const useBillStore = create<BillStore>((set, get) => ({
       const updated = [...state.bills, bill].sort(
         (a, b) => billSortKey(a) - billSortKey(b),
       );
-      return { bills: updated, activeBillIndex: updated.length - 1 };
+      return {
+        bills: updated,
+        activeBillIndex: updated.length - 1,
+        activeView: "benchmark",
+      };
     }),
 
-  setActive: (index) => set({ activeBillIndex: index }),
+  setActive: (index) => set({ activeBillIndex: index, activeView: "benchmark" }),
+
+  setActiveView: (view) => set({ activeView: view }),
 
   getActiveBill: () => {
     const { bills, activeBillIndex } = get();
@@ -65,6 +76,7 @@ export const useBillStore = create<BillStore>((set, get) => ({
       return {
         bills: updated,
         activeBillIndex: Math.min(state.activeBillIndex, updated.length - 1),
+        activeView: "benchmark",
       };
     }),
 
@@ -79,5 +91,6 @@ export const useBillStore = create<BillStore>((set, get) => ({
     set({
       bills: [...bills].sort((a, b) => billSortKey(a) - billSortKey(b)),
       activeBillIndex: bills.length - 1,
+      activeView: "benchmark",
     }),
 }));

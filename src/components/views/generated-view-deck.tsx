@@ -49,6 +49,8 @@ const SERVICE_SEQUENCE: Array<{
 export function GeneratedViewDeck() {
   const bills = useBillStore((state) => state.bills);
   const activeBillIndex = useBillStore((state) => state.activeBillIndex);
+  const activeView = useBillStore((state) => state.activeView);
+  const setActiveView = useBillStore((state) => state.setActiveView);
   const personas = useBillStore((state) => state.personas);
 
   const activeBill = bills[activeBillIndex];
@@ -91,7 +93,8 @@ export function GeneratedViewDeck() {
       </div>
 
       <Tabs
-        defaultValue="benchmark"
+        value={activeView}
+        onValueChange={(value) => setActiveView(value as typeof activeView)}
         className="w-full"
       >
         <TabsList

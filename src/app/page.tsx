@@ -7,6 +7,7 @@ import { UploadZone } from "@/components/upload-zone";
 import { BillSelector } from "@/components/bill-selector";
 import { BillAgentContext } from "@/components/bill-agent-context";
 import { ActiveBillSummary } from "@/components/active-bill-summary";
+import { RegisterViews } from "@/components/views/register-views";
 import { useBillStore } from "@/lib/store/bill-store";
 import { sampleBills } from "@/lib/sample-data";
 
@@ -51,6 +52,7 @@ function KanaApp() {
   return (
     <>
       <BillAgentContext />
+      <RegisterViews />
       <SuggestedPrompts />
 
       <div className="flex flex-1 items-center justify-center px-4 py-8">

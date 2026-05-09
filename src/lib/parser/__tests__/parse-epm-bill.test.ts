@@ -68,6 +68,32 @@ test("confidence degrades by 0.1 per missing required field", async () => {
   assert.equal(bill.confidence, 0.4);
 });
 
+test("prefers the summary billing month and estimates total from summary service totals", async () => {
+  const bill = await parseEpmBill(
+    `
+    Resumen de facturación abril de 2026
+    Valor total a pagar
+    Incrementó Disminuyó Igual
+    Consumos Valor a pagar
+    Acueducto 6 m3 $ 58.561,35
+    Alcantarillado 6 m3 $ 43.474,61
+    Energía 142 kwh $ 136.531,30
+    Gas 5,9 m3 $ 27.787,70
+    Otras entidades $ 88.165,28
+    Ajuste al peso $ -0,29
+    Menos valor aplicado $ 1.019,95
+
+    Periodo Facturado del 20 feb al 24 mar (32 días)
+    Usuario residencial estrato 5 Medellín
+  `,
+    { useClaude: false },
+  );
+
+  assert.equal(bill.billing_period, "abril de 2026");
+  assert.equal(bill.total_due, 354520.24);
+  assert.equal(bill.other_charges, 88165.28);
+});
+
 function sampleToExtractedText(sample: (typeof sampleBills)[number]): string {
   return `
     Empresas Publicas de Medellin E.S.P.

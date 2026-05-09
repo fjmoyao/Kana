@@ -181,7 +181,7 @@ function parseLocally(rawText: string, sourceFile?: string): Partial<Bill> {
     currency: "COP",
     city: parseCity(text) ?? undefined,
     stratum: parseStratum(text) ?? undefined,
-    total_due: parseLabeledMoney(text, [
+    total_due: parseLabeledMoney(rawText, [
       "total a pagar",
       "valor total a pagar",
       "total factura",
@@ -256,6 +256,7 @@ function parseStratum(text: string): number | null {
 function parseBillingPeriod(text: string, sourceFile?: string): string | null {
   const normalized = stripAccents(text).toLowerCase();
   const labeledPatterns = [
+    /resumen\s+de\s+facturacion\s+([a-z]+(?:\s+de)?\s+\d{4})/i,
     /periodo\s+(?:facturado|de\s+facturacion|de\s+consumo)\s*:?\s*([a-z]+(?:\s+de)?\s+\d{4})/i,
     /mes\s+(?:facturado|de\s+consumo)\s*:?\s*([a-z]+(?:\s+de)?\s+\d{4})/i,
   ];
@@ -373,14 +374,16 @@ function parseOtherCharges(lines: string[]): number | null {
 }
 
 function parseLabeledMoney(text: string, labels: string[]): number | null {
-  const folded = stripAccents(text).toLowerCase();
-  for (const label of labels) {
-    const index = folded.indexOf(label);
-    if (index === -1) continue;
-    const window = text.slice(index, index + 160);
-    const value = largestMoneyValue(window, { minimum: 1000 });
-    if (value != null) return value;
+  const lines = text.split(/\r?\n/);
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const foldedLine = stripAccents(lines[index]).toLowerCase();
+    if (!labels.some((label) => foldedLine.includes(label))) continue;
+
+    const sameLine = largestMoneyValue(lines[index], { minimum: 1000 });
+    if (sameLine != null) return sameLine;
   }
+
   return null;
 }
 

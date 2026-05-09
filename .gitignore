@@ -27,6 +27,12 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Claude Code
+.claude/
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
 # Data — no personal PDFs
 data/raw/
 *.pdf

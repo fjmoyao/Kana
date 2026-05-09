@@ -1,23 +1,24 @@
-import {
-  AnthropicAdapter,
-  CopilotRuntime,
-  copilotRuntimeNextJSAppRouterEndpoint,
-} from "@copilotkit/runtime";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { CopilotRuntime, copilotRuntimeNextJSAppRouterEndpoint } from "@copilotkit/runtime";
 import { BuiltInAgent } from "@copilotkit/runtime/v2";
 import { KANA_SYSTEM_PROMPT } from "@/lib/agent/system-prompt";
 import { kanaTools } from "@/lib/agent/tools";
 
-const serviceAdapter = new AnthropicAdapter({
-  model: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-20250514",
+const anthropic = createAnthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
 });
+
+const anthropicModel = anthropic(
+  process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-20250514",
+);
 
 const runtime = new CopilotRuntime({
   agents: {
     default: new BuiltInAgent({
-      model: serviceAdapter.getLanguageModel(),
+      model: anthropicModel,
       prompt: KANA_SYSTEM_PROMPT,
       tools: kanaTools,
-      maxSteps: 5,
+      maxSteps: 3,
     }),
   },
 });
@@ -26,7 +27,6 @@ export const POST = async (req: Request) => {
   const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
     runtime,
     endpoint: "/api/copilotkit",
-    serviceAdapter,
   });
   return handleRequest(req);
 };

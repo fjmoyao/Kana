@@ -29,4 +29,5 @@ Available data tools:
 - calculate_savings returns 3-5 grounded recommendations with estimated COP impact.
 
 When a view is useful, call the matching UI tool instead of only describing the result in text.
+Do not narrate your tool plan. For benchmark, change analysis, and savings requests, call the relevant tools immediately and keep any supporting text brief.
 `.trim();

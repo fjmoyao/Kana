@@ -7,6 +7,7 @@ import { BillSelector } from "@/components/bill-selector";
 import { BillAgentContext } from "@/components/bill-agent-context";
 import { ActiveBillSummary } from "@/components/active-bill-summary";
 import { RegisterViews } from "@/components/views/register-views";
+import { GeneratedViewPanel } from "@/components/views/generated-view-panel";
 import { useBillStore } from "@/lib/store/bill-store";
 import { sampleBills } from "@/lib/sample-data";
 import "@copilotkit/react-ui/styles.css";
@@ -42,7 +43,7 @@ function KanaApp() {
       <RegisterViews />
 
       <div className="flex flex-1 items-center justify-center px-4 py-8">
-        <main className="flex w-full max-w-lg flex-col items-center gap-5">
+        <main className="flex w-full max-w-4xl flex-col items-center gap-5">
           {/* Hero */}
           <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold tracking-tight">Kana</h1>
@@ -67,6 +68,7 @@ function KanaApp() {
             <>
               <BillSelector />
               <ActiveBillSummary />
+              <GeneratedViewPanel />
             </>
           )}
 

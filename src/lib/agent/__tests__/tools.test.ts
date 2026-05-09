@@ -3,6 +3,7 @@ import { test } from "node:test";
 import type { Bill } from "../../../types/bill.ts";
 import type { Persona } from "../../../types/persona.ts";
 import {
+  analyzeChanges,
   calculateSavings,
   compareUsage,
   getBiggestDriver,
@@ -120,4 +121,30 @@ test("calculates savings with grounded COP estimates", () => {
 
 test("finds the largest service cost driver", () => {
   assert.equal(getBiggestDriver(bill), "electricity");
+});
+
+test("analyzes month-over-month changes for the active bill", () => {
+  const previousBill: Bill = {
+    ...bill,
+    billing_period: "marzo de 2026",
+    total_due: 300000,
+    electricity_kwh: 120,
+    water_m3: 8,
+    sewer_m3: 8,
+    gas_m3: 5,
+  };
+  const analysis = analyzeChanges({
+    bills: [bill, previousBill],
+    active_billing_period: "abril de 2026",
+  });
+
+  assert.equal(analysis.bills.length, 2);
+  assert.equal(analysis.deltas.length, 5);
+  assert.deepEqual(
+    analysis.deltas.map((delta) => delta.service),
+    ["electricity", "water", "sewer", "gas", "total"],
+  );
+  assert.ok(
+    analysis.spike_alerts.some((alert) => alert.includes("Water increased")),
+  );
 });

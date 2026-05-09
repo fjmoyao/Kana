@@ -7,31 +7,19 @@ export function BillAgentContext() {
   const bills = useBillStore((s) => s.bills);
   const activeBillIndex = useBillStore((s) => s.activeBillIndex);
   const activeBill = bills[activeBillIndex] ?? null;
-  const personas = useBillStore((s) => s.personas);
-
-  const matchedPersonas = activeBill
-    ? personas
-        .filter((p) => p.stratum === activeBill.stratum)
-        .slice(0, 5)
-    : [];
+  const billHistory = bills.slice(
+    Math.max(0, activeBillIndex - 5),
+    activeBillIndex + 1,
+  );
 
   useCopilotReadable({
-    description: "The user's active EPM utility bill.",
+    description:
+      "Kana bill context. Use active_bill for summary, benchmark, and savings. Use bill_history for change analysis. Prefer this client bill data over fallback demo data when present.",
     value: activeBill
       ? {
-          billing_period: activeBill.billing_period,
-          stratum: activeBill.stratum,
-          total_due: activeBill.total_due,
-          electricity_kwh: activeBill.electricity_kwh,
-          electricity_cost: activeBill.electricity_cost,
-          water_m3: activeBill.water_m3,
-          water_cost: activeBill.water_cost,
-          sewer_m3: activeBill.sewer_m3,
-          sewer_cost: activeBill.sewer_cost,
-          gas_m3: activeBill.gas_m3,
-          gas_cost: activeBill.gas_cost,
-          other_charges: activeBill.other_charges,
-          billCount: bills.length,
+          active_bill: activeBill,
+          bill_history: billHistory,
+          bill_count: bills.length,
         }
       : null,
   });

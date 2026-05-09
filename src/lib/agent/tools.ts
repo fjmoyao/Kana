@@ -4,8 +4,10 @@ import type { Bill } from "../../types/bill";
 import type { Persona } from "../../types/persona";
 import type {
   BillService,
+  ChangeAnalysisProps,
   Recommendation,
   ServiceComparison,
+  ServiceDelta,
 } from "../../types/views";
 
 type MatchPersonaInput = {
@@ -22,6 +24,26 @@ type CalculateSavingsInput = {
   bill: Bill;
   comparisons: ServiceComparison[];
 };
+
+type AnalyzeChangesInput = {
+  bills: Bill[];
+  active_billing_period?: string;
+};
+
+const MONTH_ORDER = [
+  "enero",
+  "febrero",
+  "marzo",
+  "abril",
+  "mayo",
+  "junio",
+  "julio",
+  "agosto",
+  "septiembre",
+  "octubre",
+  "noviembre",
+  "diciembre",
+];
 
 const fallbackBills: Bill[] = [
   {
@@ -300,6 +322,101 @@ export function calculateSavings({
     .slice(0, 5);
 }
 
+export function analyzeChanges({
+  bills,
+  active_billing_period,
+}: AnalyzeChangesInput): ChangeAnalysisProps {
+  const orderedBills = [...bills].sort(
+    (a, b) => billSortKey(a) - billSortKey(b),
+  );
+  const requestedActiveIndex =
+    active_billing_period === undefined
+      ? -1
+      : orderedBills.findIndex(
+          (bill) => bill.billing_period === active_billing_period,
+        );
+  const activeIndex =
+    requestedActiveIndex >= 0 ? requestedActiveIndex : orderedBills.length - 1;
+  const current = orderedBills[activeIndex];
+  const previous = orderedBills[Math.max(0, activeIndex - 1)];
+  const billsInView = orderedBills.slice(
+    Math.max(0, activeIndex - 5),
+    activeIndex + 1,
+  );
+
+  if (!current || !previous || current === previous) {
+    return {
+      bills: billsInView,
+      deltas: [],
+      spike_alerts: [
+        "Upload at least two bills to compare month-over-month changes.",
+      ],
+      explanation:
+        "I need a previous bill and a current bill before I can explain what changed.",
+    };
+  }
+
+  const deltas: ServiceDelta[] = [
+    createDelta(
+      "electricity",
+      previous.electricity_kwh,
+      current.electricity_kwh,
+      "kWh",
+    ),
+    createDelta("water", previous.water_m3, current.water_m3, "m³"),
+    createDelta("sewer", previous.sewer_m3, current.sewer_m3, "m³"),
+    createDelta("gas", previous.gas_m3, current.gas_m3, "m³"),
+    createDelta("total", previous.total_due, current.total_due, "COP"),
+  ];
+  const spike_alerts = deltas
+    .filter((delta) => Math.abs(delta.change_percent) >= 20)
+    .map((delta) => {
+      const direction = delta.change_percent > 0 ? "increased" : "decreased";
+      return `${serviceLabel(delta.service)} ${direction} ${Math.abs(
+        delta.change_percent,
+      ).toFixed(1)}% versus the previous bill.`;
+    });
+
+  if (spike_alerts.length === 0) {
+    const largestMove = [...deltas].sort(
+      (a, b) => Math.abs(b.change_percent) - Math.abs(a.change_percent),
+    )[0];
+    if (largestMove) {
+      const direction =
+        largestMove.change_percent > 0
+          ? "up"
+          : largestMove.change_percent < 0
+            ? "down"
+            : "flat";
+      spike_alerts.push(
+        `${serviceLabel(largestMove.service)} moved ${direction} ${Math.abs(largestMove.change_percent).toFixed(1)}%, the biggest shift this cycle.`,
+      );
+    }
+  }
+
+  const totalDelta = deltas.find((delta) => delta.service === "total");
+  const explanation = totalDelta
+    ? `${current.billing_period} is ${
+        totalDelta.change_percent < 0
+          ? "lower"
+          : totalDelta.change_percent > 0
+            ? "higher"
+            : "flat"
+      } than ${previous.billing_period} by ${Math.abs(
+        totalDelta.change_percent,
+      ).toFixed(1)}%. The main movement is ${
+        spike_alerts[0]?.toLowerCase() ?? "small changes across services."
+      }`
+    : `Compared ${current.billing_period} with ${previous.billing_period}.`;
+
+  return {
+    bills: billsInView,
+    deltas,
+    spike_alerts,
+    explanation,
+  };
+}
+
 export function getBiggestDriver(bill: Bill): BillService {
   const services: Array<[BillService, number]> = [
     ["electricity", bill.electricity_cost],
@@ -352,6 +469,16 @@ export const kanaTools = [
     }),
     execute: async (input) => calculateSavings(input),
   }),
+  defineTool({
+    name: "analyze_changes",
+    description:
+      "Calculate month-over-month service deltas, spike alerts, and a concise explanation from chronological EPM bills.",
+    parameters: z.object({
+      bills: z.array(billSchema),
+      active_billing_period: z.string().optional(),
+    }),
+    execute: async (input) => analyzeChanges(input),
+  }),
 ];
 
 function compareService(
@@ -397,4 +524,52 @@ function roundCop(value: number): number {
 
 function roundUsage(value: number): number {
   return Math.round(value * 10) / 10;
+}
+
+function billSortKey(bill: Bill): number {
+  const lower = bill.billing_period.toLowerCase();
+  const yearMatch = lower.match(/(\d{4})/);
+  const year = yearMatch ? parseInt(yearMatch[1]) : 0;
+  const monthIndex = MONTH_ORDER.findIndex((month) => lower.includes(month));
+  return year * 100 + (monthIndex >= 0 ? monthIndex : 99);
+}
+
+function createDelta(
+  service: ServiceDelta["service"],
+  previousValue: number,
+  currentValue: number,
+  unit: ServiceDelta["unit"],
+): ServiceDelta {
+  return {
+    service,
+    previous_value: previousValue,
+    current_value: currentValue,
+    unit,
+    change_percent: roundUsage(percentChange(previousValue, currentValue)),
+  };
+}
+
+function percentChange(previousValue: number, currentValue: number): number {
+  if (previousValue === 0) {
+    return currentValue === 0 ? 0 : 100;
+  }
+
+  return ((currentValue - previousValue) / previousValue) * 100;
+}
+
+function serviceLabel(service: ServiceDelta["service"]): string {
+  switch (service) {
+    case "electricity":
+      return "Electricity";
+    case "water":
+      return "Water";
+    case "sewer":
+      return "Sewer";
+    case "gas":
+      return "Gas";
+    case "other":
+      return "Other charges";
+    case "total":
+      return "Total due";
+  }
 }

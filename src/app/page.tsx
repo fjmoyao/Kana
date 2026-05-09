@@ -1,15 +1,33 @@
 "use client";
 
 import { CopilotKit } from "@copilotkit/react-core";
+import type { ReactToolCallRenderer } from "@copilotkit/react-core/v2";
 import { CopilotSidebar } from "@copilotkit/react-ui";
+import { z } from "zod";
 import { UploadZone } from "@/components/upload-zone";
 import { BillSelector } from "@/components/bill-selector";
 import { BillAgentContext } from "@/components/bill-agent-context";
 import { ActiveBillSummary } from "@/components/active-bill-summary";
 import { RegisterViews } from "@/components/views/register-views";
+import { GeneratedViewPanel } from "@/components/views/generated-view-panel";
+import { kanaOpenGenerativeUIActivityRenderer } from "@/components/views/open-generative-ui-bridge";
+import { KANA_OPEN_GENERATIVE_UI_DESIGN_SKILL } from "@/lib/agent/system-prompt";
 import { useBillStore } from "@/lib/store/bill-store";
 import { sampleBills } from "@/lib/sample-data";
 import "@copilotkit/react-ui/styles.css";
+
+const kanaRenderActivityMessages = [kanaOpenGenerativeUIActivityRenderer];
+const kanaOpenGenerativeUI = {
+  designSkill: KANA_OPEN_GENERATIVE_UI_DESIGN_SKILL,
+};
+// Keep CopilotKit's sandboxed UI tool active, but suppress its chat-side iframe.
+const kanaRenderToolCalls: ReactToolCallRenderer<unknown>[] = [
+  {
+    name: "generateSandboxedUi",
+    args: z.any(),
+    render: () => null,
+  },
+];
 
 function EmptyState({ onLoadSample }: { onLoadSample: () => void }) {
   return (
@@ -42,7 +60,7 @@ function KanaApp() {
       <RegisterViews />
 
       <div className="flex flex-1 items-center justify-center px-4 py-8">
-        <main className="flex w-full max-w-lg flex-col items-center gap-5">
+        <main className="flex w-full max-w-4xl flex-col items-center gap-5">
           {/* Hero */}
           <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold tracking-tight">Kana</h1>
@@ -67,6 +85,7 @@ function KanaApp() {
             <>
               <BillSelector />
               <ActiveBillSummary />
+              <GeneratedViewPanel />
             </>
           )}
 
@@ -92,7 +111,12 @@ function KanaApp() {
 
 export default function Home() {
   return (
-    <CopilotKit runtimeUrl="/api/copilotkit">
+    <CopilotKit
+      runtimeUrl="/api/copilotkit"
+      openGenerativeUI={kanaOpenGenerativeUI}
+      renderActivityMessages={kanaRenderActivityMessages}
+      renderToolCalls={kanaRenderToolCalls}
+    >
       <KanaApp />
     </CopilotKit>
   );

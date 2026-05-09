@@ -1,27 +1,28 @@
 "use client";
 
-import { useFrontendTool } from "@copilotkit/react-core";
-import { createElement } from "react";
-import type { SavingsPlanProps } from "../../types/views";
-import { SavingsPlanCard } from "./savings-plan-card";
+import { useFrontendTool } from "@copilotkit/react-core/v2";
+import { useGeneratedViewStore } from "@/lib/store/generated-view-store";
+import { savingsPlanSchema } from "./view-schemas";
 
 export function useSavingsPlan() {
   useFrontendTool({
     name: "show_savings_plan",
     description:
       "Renders a savings plan card with ranked recommendations, estimated monthly COP impact, difficulty level, and reasoning. Call this when the user asks how to save or wants recommendations.",
-    parameters: [
-      {
-        name: "recommendations",
-        type: "object[]",
-        description:
-          "3-5 ranked savings recommendations. Each has: action (string), estimated_savings_cop (number), difficulty ('easy'|'medium'|'effort'), reasoning (string).",
-        required: true,
-      },
-    ],
-    render: ({ args, status }) =>
-      status === "inProgress"
-        ? "Generando plan de ahorro..."
-        : createElement(SavingsPlanCard, args as unknown as SavingsPlanProps),
+    parameters: savingsPlanSchema,
+    followUp: false,
+    handler: async (args) => {
+      const result = savingsPlanSchema.safeParse(args);
+      if (!result.success) {
+        return "Rendered the savings plan in the main Kana workspace.";
+      }
+
+      const props = result.data;
+      useGeneratedViewStore.getState().setActiveView({
+        type: "savings_plan",
+        props,
+      });
+      return "Rendered the savings plan in the main Kana workspace.";
+    },
   });
 }

@@ -7,9 +7,9 @@ This is the step-by-step build guide for the Kana hackathon MVP. It is designed 
 | Layer | Tool | Why |
 |---|---|---|
 | Frontend | Next.js 15 (App Router) + React 19 | API routes in same deploy, CopilotKit native support |
-| Copilot UX | CopilotKit v2 (`@copilotkit/react`, `@copilotkit/runtime`) | `useComponent` for generative UI, `useAgentContext` for bill state |
+| Copilot UX | CopilotKit v2 (`@copilotkit/react-core`, `@copilotkit/react-ui`, `@copilotkit/runtime`) | `useFrontendTool` for agent-triggered UI, readable context for bill state |
 | Agent Transport | AG-UI protocol | Streaming bidirectional, built into CopilotKit v2 |
-| Generative UI | CopilotKit `useComponent` + A2UI | Agent renders React components at runtime based on query |
+| Generative UI | CopilotKit frontend tools + Open Generative UI/A2UI | Agent updates the main workspace at runtime based on query |
 | PDF Parsing | `pdf-parse` | Text extraction from EPM native-text PDFs |
 | LLM | Claude API (Anthropic) | Structured extraction, intent detection, savings reasoning |
 | Styling | Tailwind CSS + shadcn/ui | Fast, polished components |
@@ -46,7 +46,7 @@ This is the step-by-step build guide for the Kana hackathon MVP. It is designed 
         M8 Testing (All)
 ```
 
-**Parallel from day one:** After M1 is merged, all three workstreams run independently. They converge when the agent needs to call `useComponent` tools (M4 imports M5 component schemas) and when the agent calls parser functions (M4 imports M3).
+**Parallel from day one:** After M1 is merged, all three workstreams run independently. They converge when the agent needs to call frontend tools (M4 imports M5 component schemas) and when the agent calls parser functions (M4 imports M3).
 
 **Integration contract:** Each module communicates through the shared types in `src/types/`. Dev B defines the `Bill` and `Persona` interfaces first. Dev A and Dev C code against those interfaces without waiting for the parser or agent to be finished.
 
@@ -235,7 +235,7 @@ Dev C works against the shared types and mocked bill data until M3 is ready.
 **Branch:** `feat/generative-ui`
 **Depends on:** M1 merged (for types and CopilotKit)
 
-Dev A builds components against the shared types and hardcoded sample data. They are registered with `useComponent` so the agent can render them in the chat.
+Dev A builds components against the shared types and hardcoded sample data. They are registered with CopilotKit frontend tools so the agent can update the shared main-page workspace from chat.
 
 ### 5.1 Bill Summary Card
 
@@ -295,19 +295,26 @@ Hook: src/components/views/use-savings-plan.ts
 
 ### Registration Pattern
 
-Each view has a `use-*.ts` file that calls `useComponent`:
+Each view has a `use-*.ts` file that calls `useFrontendTool`. Tool handlers update `GeneratedViewPanel`; the chat stays a control surface instead of duplicating the generated UI:
 
 ```ts
-import { useComponent } from "@copilotkit/react";
+import { useFrontendTool } from "@copilotkit/react-core/v2";
 import { z } from "zod";
-import { BillSummaryCard } from "./bill-summary-card";
+import { useGeneratedViewStore } from "@/lib/store/generated-view-store";
 
 export function useBillSummary() {
-  useComponent({
-    name: "BillSummary",
+  useFrontendTool({
+    name: "show_bill_summary",
     description: "Displays a bill summary with total due, service breakdown, and biggest cost driver",
     parameters: z.object({ /* matches BillSummaryProps */ }),
-    render: BillSummaryCard,
+    followUp: false,
+    handler: async (props) => {
+      useGeneratedViewStore.getState().setActiveView({
+        type: "summary",
+        props,
+      });
+      return "Rendered the bill summary in the main Kana workspace.";
+    },
   });
 }
 ```
@@ -380,7 +387,7 @@ src/
     upload-zone.tsx                       # Drag-and-drop PDF upload
     bill-selector.tsx                     # Multi-bill tabs
     views/
-      register-views.tsx                  # Mounts all useComponent hooks
+      register-views.tsx                  # Mounts all frontend tool hooks
       bill-summary-card.tsx               # View: summary
       use-bill-summary.ts
       change-analysis-card.tsx            # View: trends
@@ -421,7 +428,7 @@ These are the moments where workstreams must sync:
 |---|---|---|
 | **C1: Types agreed** | All | `bill.ts`, `persona.ts`, `views.ts` are final and merged in M1 |
 | **C2: Parser returns Bill** | B + C | Dev C can call the parse API and receive a valid `Bill` |
-| **C3: Components accept props** | A + C | Dev C can call `useComponent` tools and Dev A's components render |
+| **C3: Components accept props** | A + C | Dev C can call frontend tools and Dev A's components render in the main workspace |
 | **C4: Full loop** | All | Upload -> parse -> agent -> generative UI -> user sees cards |
 
 ---

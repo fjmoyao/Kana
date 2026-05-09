@@ -6,19 +6,33 @@ import {
 import { KANA_SYSTEM_PROMPT } from "@/lib/agent/system-prompt";
 import { kanaTools } from "@/lib/agent/tools";
 
-const model = process.env.ANTHROPIC_MODEL
-  ? `anthropic:${process.env.ANTHROPIC_MODEL}`
-  : "anthropic:claude-haiku-4-5-20251001";
+const chatModel =
+  process.env.KANA_CHAT_MODEL ??
+  process.env.COPILOTKIT_CHAT_MODEL ??
+  "claude-haiku-4-5-20251001";
+const model =
+  chatModel.includes(":") || chatModel.includes("/")
+    ? chatModel
+    : `anthropic:${chatModel}`;
 
 const runtime = new CopilotRuntime({
   agents: {
     default: new BuiltInAgent({
       model,
-      instructions: KANA_SYSTEM_PROMPT,
+      prompt: KANA_SYSTEM_PROMPT,
       tools: kanaTools,
-      maxSteps: 5,
+      maxSteps: 6,
+      maxOutputTokens: 2800,
+      maxRetries: 1,
+      temperature: 0.2,
+      providerOptions: {
+        anthropic: {
+          disableParallelToolUse: true,
+        },
+      },
     }),
   },
+  openGenerativeUI: true,
 });
 
 const handler = createCopilotRuntimeHandler({

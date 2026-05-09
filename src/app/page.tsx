@@ -8,9 +8,16 @@ import { BillAgentContext } from "@/components/bill-agent-context";
 import { ActiveBillSummary } from "@/components/active-bill-summary";
 import { RegisterViews } from "@/components/views/register-views";
 import { GeneratedViewPanel } from "@/components/views/generated-view-panel";
+import { kanaOpenGenerativeUIActivityRenderer } from "@/components/views/open-generative-ui-bridge";
+import { KANA_OPEN_GENERATIVE_UI_DESIGN_SKILL } from "@/lib/agent/system-prompt";
 import { useBillStore } from "@/lib/store/bill-store";
 import { sampleBills } from "@/lib/sample-data";
 import "@copilotkit/react-ui/styles.css";
+
+const kanaRenderActivityMessages = [kanaOpenGenerativeUIActivityRenderer];
+const kanaOpenGenerativeUI = {
+  designSkill: KANA_OPEN_GENERATIVE_UI_DESIGN_SKILL,
+};
 
 function EmptyState({ onLoadSample }: { onLoadSample: () => void }) {
   return (
@@ -94,7 +101,11 @@ function KanaApp() {
 
 export default function Home() {
   return (
-    <CopilotKit runtimeUrl="/api/copilotkit">
+    <CopilotKit
+      runtimeUrl="/api/copilotkit"
+      openGenerativeUI={kanaOpenGenerativeUI}
+      renderActivityMessages={kanaRenderActivityMessages}
+    >
       <KanaApp />
     </CopilotKit>
   );

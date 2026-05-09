@@ -5,6 +5,7 @@ import type { GeneratedView } from "@/lib/store/generated-view-store";
 import { BenchmarkCard } from "./benchmark-card";
 import { BillSummaryCard } from "./bill-summary-card";
 import { ChangeAnalysisCard } from "./change-analysis-card";
+import { OpenGenerativeSurface } from "./open-generative-surface";
 import { SavingsPlanCard } from "./savings-plan-card";
 
 export function GeneratedViewPanel() {
@@ -22,7 +23,7 @@ export function GeneratedViewPanel() {
           </h2>
         </div>
         <p className="hidden max-w-sm text-right text-xs leading-5 text-zinc-400 sm:block">
-          Ask Kana in the sidebar and the generated card appears here.
+          Ask Kana in the sidebar and the generated surface appears here.
         </p>
       </div>
 
@@ -31,12 +32,12 @@ export function GeneratedViewPanel() {
       ) : (
         <div className="overflow-hidden rounded-[28px] border border-dashed border-blue-200 bg-[radial-gradient(circle_at_top_left,#dbeafe_0,#ffffff_42%,#f8fafc_100%)] p-6 shadow-[0_18px_45px_rgba(59,130,246,0.08)]">
           <p className="text-sm font-medium text-zinc-900">
-            Your generated cards will land here.
+            Your generated UI will land here.
           </p>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
             Try "How do I compare to similar households?", "What changed from
-            the previous bill?", or "How can I save on this bill?" in the real
-            Copilot sidebar.
+            the previous bill?", "How can I save on this bill?", or ask for a
+            custom dashboard in the real Copilot sidebar.
           </p>
         </div>
       )}
@@ -58,5 +59,7 @@ function GeneratedViewContent({
       return <BenchmarkCard {...view.props} />;
     case "savings_plan":
       return <SavingsPlanCard {...view.props} />;
+    case "open_generated":
+      return <OpenGenerativeSurface content={view.props.content} />;
   }
 }

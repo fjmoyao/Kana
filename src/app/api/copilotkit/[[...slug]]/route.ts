@@ -22,7 +22,7 @@ const runtime = new CopilotRuntime({
       prompt: KANA_SYSTEM_PROMPT,
       tools: kanaTools,
       maxSteps: 6,
-      maxOutputTokens: 1200,
+      maxOutputTokens: 2800,
       maxRetries: 1,
       temperature: 0.2,
       providerOptions: {
@@ -32,6 +32,7 @@ const runtime = new CopilotRuntime({
       },
     }),
   },
+  openGenerativeUI: true,
 });
 
 const handler = createCopilotRuntimeHandler({

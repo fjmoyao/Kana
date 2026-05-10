@@ -35,9 +35,10 @@ export function GeneratedViewPanel() {
             Your generated UI will land here.
           </p>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
-            Try "How do I compare to similar households?", "What changed from
-            the previous bill?", "How can I save on this bill?", or ask for a
-            custom dashboard in the real Copilot sidebar.
+            Try &quot;How do I compare to similar households?&quot;,
+            &quot;What changed from the previous bill?&quot;, &quot;How can I
+            save on this bill?&quot;, or ask for a custom dashboard in the real
+            Copilot sidebar.
           </p>
         </div>
       )}

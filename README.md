@@ -6,14 +6,21 @@ For the hackathon MVP, Kana is demonstrated on real EPM bills from Medellin and 
 
 ## Local Development
 
-Run the app from the Next.js project root:
+Run the app from the repository root, the directory that contains `package.json`:
 
 ```bash
-cd repo-pr2
+git clone https://github.com/fjmoyao/Kana.git
+cd Kana
+npm install
+npm run dev
+```
+
+If you already have the repo cloned, update your local `main` first:
+
+```bash
 git fetch origin
 git switch main
 git pull --ff-only
-npm install
 npm run dev
 ```
 

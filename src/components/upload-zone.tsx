@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { isPdfFile } from "@/lib/files/pdf";
 import { useBillStore } from "@/lib/store/bill-store";
@@ -13,6 +12,7 @@ export function UploadZone() {
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [fileName, setFileName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const addBill = useBillStore((s) => s.addBill);
 
   useEffect(() => {
@@ -125,9 +125,28 @@ export function UploadZone() {
     [uploadFiles],
   );
 
+  const openFileDialog = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleKeyboardOpen = useCallback(
+    (e: React.KeyboardEvent<HTMLLabelElement>) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+
+      e.preventDefault();
+      openFileDialog();
+    },
+    [openFileDialog],
+  );
+
   return (
-    <Card
-      className={`relative flex flex-col items-center justify-center gap-3 border-2 border-dashed p-8 transition-colors cursor-pointer ${
+    <label
+      htmlFor="pdf-upload"
+      role="button"
+      tabIndex={0}
+      aria-label="Upload EPM bill PDF"
+      data-upload-state={status}
+      className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed bg-card p-8 text-sm text-card-foreground transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
         status === "dragging"
           ? "border-blue-500 bg-blue-50"
           : status === "error"
@@ -140,30 +159,30 @@ export function UploadZone() {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
+      onKeyDown={handleKeyboardOpen}
     >
       <input
+        ref={fileInputRef}
         id="pdf-upload"
+        name="file"
         type="file"
-        aria-label="Upload EPM bill PDF"
+        aria-hidden="true"
+        tabIndex={-1}
         accept=".pdf,application/pdf,application/x-pdf"
         multiple
-        className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-        onDragEnter={handleDragEnter}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+        className="hidden"
         onChange={handleFileInput}
       />
 
       {status === "uploading" && (
-        <div className="pointer-events-none contents">
+        <div className="pointer-events-none contents" aria-live="polite">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-700" />
           <p className="text-sm text-zinc-600">Parsing {fileName}...</p>
         </div>
       )}
 
       {status === "success" && (
-        <div className="pointer-events-none contents">
+        <div className="pointer-events-none contents" aria-live="polite">
           <Badge variant="secondary" className="bg-green-100 text-green-800">
             Parsed
           </Badge>
@@ -173,7 +192,7 @@ export function UploadZone() {
       )}
 
       {status === "error" && (
-        <div className="pointer-events-none contents">
+        <div className="pointer-events-none contents" aria-live="assertive">
           <Badge variant="destructive">Error</Badge>
           <p className="text-sm text-red-600">{error}</p>
           <p className="text-xs text-zinc-400">Try again</p>
@@ -201,7 +220,7 @@ export function UploadZone() {
           <p className="text-xs text-zinc-400">or click to browse</p>
         </div>
       )}
-    </Card>
+    </label>
   );
 }
 

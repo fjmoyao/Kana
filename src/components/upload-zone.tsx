@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { isPdfFile } from "@/lib/files/pdf";
@@ -13,7 +13,6 @@ export function UploadZone() {
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [fileName, setFileName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const addBill = useBillStore((s) => s.addBill);
 
   useEffect(() => {
@@ -93,6 +92,31 @@ export function UploadZone() {
     [uploadFiles],
   );
 
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    if (!hasDraggedFiles(e.nativeEvent)) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    setStatus("dragging");
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    if (!hasDraggedFiles(e.nativeEvent)) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "copy";
+    setStatus("dragging");
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    if (isNode(e.relatedTarget) && e.currentTarget.contains(e.relatedTarget)) {
+      return;
+    }
+
+    setStatus("idle");
+  }, []);
+
   const handleFileInput = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       await uploadFiles(e.target.files || []);
@@ -103,8 +127,6 @@ export function UploadZone() {
 
   return (
     <Card
-      role="button"
-      tabIndex={0}
       className={`relative flex flex-col items-center justify-center gap-3 border-2 border-dashed p-8 transition-colors cursor-pointer ${
         status === "dragging"
           ? "border-blue-500 bg-blue-50"
@@ -114,76 +136,52 @@ export function UploadZone() {
               ? "border-green-300 bg-green-50"
               : "border-zinc-300 hover:border-zinc-400"
       }`}
-      onDragEnter={(e) => {
-        if (!hasDraggedFiles(e.nativeEvent)) return;
-        e.preventDefault();
-        e.stopPropagation();
-        setStatus("dragging");
-      }}
-      onDragOver={(e) => {
-        if (!hasDraggedFiles(e.nativeEvent)) return;
-        e.preventDefault();
-        e.stopPropagation();
-        e.dataTransfer.dropEffect = "copy";
-        setStatus("dragging");
-      }}
-      onDragLeave={(e) => {
-        if (
-          isNode(e.relatedTarget) &&
-          e.currentTarget.contains(e.relatedTarget)
-        ) {
-          return;
-        }
-
-        setStatus("idle");
-      }}
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={() => fileInputRef.current?.click()}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          fileInputRef.current?.click();
-        }
-      }}
     >
       <input
-        ref={fileInputRef}
         id="pdf-upload"
         type="file"
+        aria-label="Upload EPM bill PDF"
         accept=".pdf,application/pdf,application/x-pdf"
         multiple
-        className="hidden"
-        onClick={(e) => e.stopPropagation()}
+        className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         onChange={handleFileInput}
       />
 
       {status === "uploading" && (
-        <>
+        <div className="pointer-events-none contents">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-700" />
           <p className="text-sm text-zinc-600">Parsing {fileName}...</p>
-        </>
+        </div>
       )}
 
       {status === "success" && (
-        <>
+        <div className="pointer-events-none contents">
           <Badge variant="secondary" className="bg-green-100 text-green-800">
             Parsed
           </Badge>
           <p className="text-sm text-zinc-600">{fileName}</p>
           <p className="text-xs text-zinc-400">Drop another bill or click to upload</p>
-        </>
+        </div>
       )}
 
       {status === "error" && (
-        <>
+        <div className="pointer-events-none contents">
           <Badge variant="destructive">Error</Badge>
           <p className="text-sm text-red-600">{error}</p>
           <p className="text-xs text-zinc-400">Try again</p>
-        </>
+        </div>
       )}
 
       {(status === "idle" || status === "dragging") && (
-        <>
+        <div className="pointer-events-none contents">
           <svg
             className="h-8 w-8 text-zinc-400"
             fill="none"
@@ -201,7 +199,7 @@ export function UploadZone() {
             Drop your EPM bill PDF here
           </p>
           <p className="text-xs text-zinc-400">or click to browse</p>
-        </>
+        </div>
       )}
     </Card>
   );

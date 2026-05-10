@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { parseEpmBill } from "../../../lib/parser/parse-epm-bill";
 import { extractTextFromPdf } from "../../../lib/parser/extract-text";
+import { isPdfFile } from "../../../lib/files/pdf";
 import { storeBillFile } from "../../../lib/server/bill-file-store";
 
 export async function POST(request: Request) {
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "PDF file is required" }, { status: 400 });
   }
 
-  if (file.type && file.type !== "application/pdf") {
+  if (!isPdfFile(file)) {
     return NextResponse.json({ error: "Only PDF files are supported" }, { status: 415 });
   }
 

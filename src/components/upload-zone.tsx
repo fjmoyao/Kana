@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { isPdfFile } from "@/lib/files/pdf";
 import { useBillStore } from "@/lib/store/bill-store";
 import type { Bill } from "@/types/bill";
 
@@ -12,11 +13,28 @@ export function UploadZone() {
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [fileName, setFileName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const addBill = useBillStore((s) => s.addBill);
+
+  useEffect(() => {
+    const preventBrowserFileOpen = (event: DragEvent) => {
+      if (hasDraggedFiles(event)) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("dragover", preventBrowserFileOpen);
+    window.addEventListener("drop", preventBrowserFileOpen);
+
+    return () => {
+      window.removeEventListener("dragover", preventBrowserFileOpen);
+      window.removeEventListener("drop", preventBrowserFileOpen);
+    };
+  }, []);
 
   const uploadFile = useCallback(
     async (file: File) => {
-      if (file.type && file.type !== "application/pdf") {
+      if (!isPdfFile(file)) {
         setStatus("error");
         setError("Only PDF files are supported");
         return;
@@ -49,31 +67,44 @@ export function UploadZone() {
     [addBill],
   );
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setStatus("idle");
-      const files = Array.from(e.dataTransfer.files);
+  const uploadFiles = useCallback(
+    async (fileList: FileList | File[]) => {
+      const files = Array.from(fileList);
+      if (files.length === 0) {
+        setStatus("error");
+        setError("Drop a PDF file to upload");
+        return;
+      }
+
       for (const file of files) {
-        uploadFile(file);
+        await uploadFile(file);
       }
     },
     [uploadFile],
   );
 
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setStatus("idle");
+      await uploadFiles(e.dataTransfer.files);
+    },
+    [uploadFiles],
+  );
+
   const handleFileInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || []);
-      for (const file of files) {
-        uploadFile(file);
-      }
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      await uploadFiles(e.target.files || []);
       e.target.value = "";
     },
-    [uploadFile],
+    [uploadFiles],
   );
 
   return (
     <Card
+      role="button"
+      tabIndex={0}
       className={`relative flex flex-col items-center justify-center gap-3 border-2 border-dashed p-8 transition-colors cursor-pointer ${
         status === "dragging"
           ? "border-blue-500 bg-blue-50"
@@ -83,20 +114,46 @@ export function UploadZone() {
               ? "border-green-300 bg-green-50"
               : "border-zinc-300 hover:border-zinc-400"
       }`}
-      onDragOver={(e) => {
+      onDragEnter={(e) => {
+        if (!hasDraggedFiles(e.nativeEvent)) return;
         e.preventDefault();
+        e.stopPropagation();
         setStatus("dragging");
       }}
-      onDragLeave={() => setStatus("idle")}
+      onDragOver={(e) => {
+        if (!hasDraggedFiles(e.nativeEvent)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = "copy";
+        setStatus("dragging");
+      }}
+      onDragLeave={(e) => {
+        if (
+          isNode(e.relatedTarget) &&
+          e.currentTarget.contains(e.relatedTarget)
+        ) {
+          return;
+        }
+
+        setStatus("idle");
+      }}
       onDrop={handleDrop}
-      onClick={() => document.getElementById("pdf-upload")?.click()}
+      onClick={() => fileInputRef.current?.click()}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          fileInputRef.current?.click();
+        }
+      }}
     >
       <input
+        ref={fileInputRef}
         id="pdf-upload"
         type="file"
-        accept=".pdf"
+        accept=".pdf,application/pdf,application/x-pdf"
         multiple
         className="hidden"
+        onClick={(e) => e.stopPropagation()}
         onChange={handleFileInput}
       />
 
@@ -148,4 +205,12 @@ export function UploadZone() {
       )}
     </Card>
   );
+}
+
+function hasDraggedFiles(event: DragEvent): boolean {
+  return Array.from(event.dataTransfer?.types ?? []).includes("Files");
+}
+
+function isNode(value: EventTarget | null): value is Node {
+  return value instanceof Node;
 }

@@ -6,14 +6,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Kana is an agentic utility copilot for Medellin households. Users upload EPM (Empresas Públicas de Medellín) utility bill PDFs; an agent parses the bill and generates a live UI at runtime — bill breakdowns, trend views, spike alerts, persona comparisons, and savings recommendations. The interface is generated from the uploaded bill and user queries, not served from static pages.
 
-**Status:** Scaffold complete (Next.js 15 + CopilotKit + shared types).
+**Stack:** Next.js 16 + CopilotKit 1.57 + Tailwind 4 + Zustand + Node built-in test runner.
 
 ## Commands
 
 ```bash
 npm run dev          # Start dev server on localhost:3000
-npm run build        # Production build
+npm run build        # Production build (uses --webpack flag)
 npm run lint         # ESLint
+npm test             # Run all tests (Node built-in test runner, no Jest)
+# Run a single test file:
+node --experimental-strip-types --experimental-specifier-resolution=node --test src/lib/agent/__tests__/tools.test.ts
+```
+
+## Environment Variables
+
+```
+ANTHROPIC_API_KEY=          # Required for bill parsing (/api/parse) and agent
+ANTHROPIC_MODEL=            # Optional; defaults to claude-haiku-4-5-20251001
 ```
 
 ## Core Concept
@@ -26,20 +36,18 @@ npm run lint         # ESLint
 
 Three layers:
 
-1. **PDF Parser** — Extracts five EPM service categories (water, sewer, energy, gas, other charges) from uploaded bill PDFs. Output shape matches `src/types/bill.ts`.
+1. **PDF Parser** — `POST /api/parse` calls Claude (structured output) to extract five EPM service categories from raw PDF text. Output matches `src/types/bill.ts`. `src/lib/parser/` contains the extraction logic; `src/lib/server/bill-file-store.ts` manages server-side temp storage.
 
-2. **Agent Layer** — CopilotKit runtime at `/api/copilotkit`. Receives parsed bill + user query via `useCopilotReadable`, selects which UI components to render. Uses `useCopilotAction`/`useFrontendTool` for generative UI.
+2. **Agent Layer** — `src/app/api/copilotkit/[[...slug]]/route.ts` uses `@copilotkit/runtime/v2` (`CopilotRuntime` + `BuiltInAgent` + `defineTool`). The agent has four backend tools in `src/lib/agent/tools.ts`: `get_bills`, `get_matching_personas`, `compare_usage`, `calculate_savings`. Bill context is pushed from the client via `useCopilotReadable` in `BillAgentContext`.
 
-3. **UI Layer** — React components registered via CopilotKit hooks, rendered inline in `CopilotSidebar`. Component types: bill summary, trend cards, persona benchmark cards, savings action plan, spike alerts.
+3. **UI Layer** — Four view hooks in `src/components/views/use-*.ts` register frontend tools via `useFrontendTool` (not `useCopilotAction`). Each hook maps a tool name (e.g. `show_bill_summary`) to a React component. `RegisterViews` mounts all four hooks as a null-rendering component in `page.tsx`. The agent calls these tools to render cards inline in `CopilotSidebar`.
 
-## Key Packages
+## Key API Notes
 
-- `@copilotkit/react-core` + `@copilotkit/react-ui` — frontend (provider is `CopilotKit`, not `CopilotKitProvider`)
-- `@copilotkit/runtime` — backend (`copilotRuntimeNextJSAppRouterEndpoint`)
-- `zustand` — client state (bill store)
-- `zod` — schema validation
-- `pdf-parse` — PDF text extraction
-- `@anthropic-ai/sdk` — Claude API for structured bill parsing
+- Frontend provider: `CopilotKit` (from `@copilotkit/react-core`), not `CopilotKitProvider`
+- Backend runtime: import from `@copilotkit/runtime/v2` — use `CopilotRuntime`, `BuiltInAgent`, `defineTool`, `createCopilotRuntimeHandler`. The older `copilotRuntimeNextJSAppRouterEndpoint` pattern is not used here.
+- Frontend tools: `useFrontendTool` from `@copilotkit/react-core` (the v2 replacement for `useCopilotAction` generative UI)
+- Zod schemas are defined twice — once in `src/components/views/view-schemas.ts` (client) and once inline in `src/lib/agent/tools.ts` (server). Keep them in sync with `src/types/bill.ts`.
 
 ## Sample Data
 
